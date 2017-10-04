@@ -1,0 +1,4 @@
+version: "0.1.0"
+dependencies:
+  postmaster: "distri/postmaster:master"
+  ui: "STRd6/ui:master"
