@@ -36,6 +36,7 @@ module.exports = ->
 
   document.addEventListener "mousedown", ->
     applicationProxy.raiseToTop()
+    .catch console.warn
 
   postmaster.invokeRemote "childLoaded"
   .then (result) ->
