@@ -2,7 +2,7 @@
 # we hook up the postmaster and proxy messages to the OS
 # we also provide system packages for the application to use like UI
 
-module.exports = ->
+SystemClient = ->
   # NOTE: These required packages get populated from the parent package when building
   # the runnable app. See util.coffee
   Postmaster = require "postmaster"
@@ -51,3 +51,8 @@ module.exports = ->
     system: systemProxy
     application: applicationProxy
     postmaster: postmaster
+
+SystemClient.applyExtensions = ->
+  require "./lib/extensions"
+
+module.exports = SystemClient
