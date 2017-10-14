@@ -2,6 +2,8 @@
 # we hook up the postmaster and proxy messages to the OS
 # we also provide system packages for the application to use like UI
 
+{version} = require "./pixie"
+
 SystemClient = ->
   # NOTE: These required packages get populated from the parent package when building
   # the runnable app. See util.coffee
@@ -24,6 +26,14 @@ SystemClient = ->
   systemProxy = new Proxy
     Observable: UI.Observable
     UI: UI
+    ready: ->
+      postmaster.invokeRemote "ready",
+        ZineOSClient: version
+      .then (result) ->
+        console.log result
+        appData = result?.ZineOS
+
+        return appData
   ,
     get: (target, property, receiver) ->
       target[property] or
@@ -38,19 +48,9 @@ SystemClient = ->
     applicationProxy.raiseToTop()
     .catch console.warn
 
-  postmaster.invokeRemote "childLoaded"
-  .then (result) ->
-    console.log result
-
-    appData = result?.ZineOS
-
-    return appData
-  .catch (e) ->
-    console.error e
-  .then (data) ->
-    system: systemProxy
-    application: applicationProxy
-    postmaster: postmaster
+  system: systemProxy
+  application: applicationProxy
+  postmaster: postmaster
 
 SystemClient.applyExtensions = ->
   require "./lib/extensions"
