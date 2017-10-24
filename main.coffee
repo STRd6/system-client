@@ -51,6 +51,8 @@ SystemClient = ->
   system: systemProxy
   application: applicationProxy
   postmaster: postmaster
+  util:
+    FileIO: require "./lib/file-io"
 
 SystemClient.applyExtensions = ->
   require "./lib/extensions"

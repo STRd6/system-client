@@ -15,6 +15,11 @@ describe "System Client", ->
     assert system
     assert application
 
+  it "should provide FileIO as a util", ->
+    {util} = SystemClient()
+
+    assert util.FileIO
+
   it "should connect when ready is called", (done) ->
     {system, application} = SystemClient()
 
