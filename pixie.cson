@@ -1,4 +1,7 @@
 version: "0.1.2"
+publish:
+  s3:
+    basePath: "public/danielx.net"
 dependencies:
   postmaster: "distri/postmaster:master"
   ui: "STRd6/ui:master"
