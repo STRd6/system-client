@@ -24,6 +24,12 @@ describe "System Client", ->
 
     assert.equal handlers.currentPath(), ""
 
+  it "should provide UI and Observable", ->
+    {UI, Observable} = SystemClient
+
+    assert UI
+    assert.equal typeof Observable, "function"
+
   it "should connect when ready is called", (done) ->
     {system, application} = SystemClient()
 
