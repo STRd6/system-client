@@ -15,6 +15,7 @@ SystemClient = ->
   document.head.appendChild style
 
   postmaster = Postmaster()
+  remoteExists = postmaster.remoteTarget()
 
   applicationProxy = new Proxy {}
   ,
@@ -25,7 +26,7 @@ SystemClient = ->
 
   systemProxy = new Proxy
     ready: ->
-      if postmaster.remoteTarget()
+      if remoteExists
         postmaster.invokeRemote "ready",
           ZineOSClient: version
         .then (result) ->
@@ -46,8 +47,9 @@ SystemClient = ->
   # back and forth like magic
 
   document.addEventListener "mousedown", ->
-    applicationProxy.raiseToTop()
-    .catch console.warn
+    if remoteExists
+      applicationProxy.raiseToTop()
+      .catch console.warn
 
   system: systemProxy
   application: applicationProxy
