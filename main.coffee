@@ -25,13 +25,16 @@ SystemClient = ->
 
   systemProxy = new Proxy
     ready: ->
-      postmaster.invokeRemote "ready",
-        ZineOSClient: version
-      .then (result) ->
-        console.log result
-        appData = result?.ZineOS
-
-        return appData
+      if postmaster.remoteTarget()
+        postmaster.invokeRemote "ready",
+          ZineOSClient: version
+        .then (result) ->
+          console.log result
+          appData = result?.ZineOS
+  
+          return appData
+      else # Quick fail when there is no parent window to connect to
+        Promise.reject "No parent window"
   ,
     get: (target, property, receiver) ->
       target[property] or
