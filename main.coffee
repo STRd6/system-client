@@ -31,6 +31,9 @@ SystemClient = ->
           console.log result
           appData = result?.ZineOS
 
+          if appData
+            initializeOnZineOS()
+
           return appData
       else # Quick fail when there is no parent window to connect to
         Promise.reject "No parent window"
@@ -44,8 +47,8 @@ SystemClient = ->
   # create the receiver on the opposite end of the membrane and pass messages
   # back and forth like magic
 
-  document.addEventListener "mousedown", ->
-    if remoteExists
+  initializeOnZineOS = ->
+    document.addEventListener "mousedown", ->
       applicationProxy.raiseToTop()
       .catch console.warn
 
