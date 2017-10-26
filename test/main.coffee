@@ -16,9 +16,13 @@ describe "System Client", ->
     assert application
 
   it "should provide FileIO as a util", ->
-    {util} = SystemClient()
+    {util} = client = SystemClient()
 
     assert util.FileIO
+
+    handlers = util.FileIO(client)
+
+    assert.equal handlers.currentPath(), ""
 
   it "should connect when ready is called", (done) ->
     {system, application} = SystemClient()

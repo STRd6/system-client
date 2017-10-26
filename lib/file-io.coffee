@@ -6,9 +6,9 @@
 #     current application state.
 #   `newFile` Initialize the application to an empty state.
 
-module.exports = (system) ->
-  {Observable} = system
-  {Modal} = system.UI
+module.exports = (client) ->
+  {system, Observable, UI} = client
+  {Modal} = UI
 
   currentPath = Observable ""
   saved = Observable true
