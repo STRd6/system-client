@@ -24,8 +24,6 @@ SystemClient = ->
         postmaster.invokeRemote "application", property, arguments...
 
   systemProxy = new Proxy
-    Observable: UI.Observable
-    UI: UI
     ready: ->
       postmaster.invokeRemote "ready",
         ZineOSClient: version
@@ -53,6 +51,9 @@ SystemClient = ->
   postmaster: postmaster
   util:
     FileIO: require "./lib/file-io"
+  Observable: UI.Observable
+  UI: UI
+  version: version
 
 SystemClient.applyExtensions = ->
   require "./lib/extensions"
