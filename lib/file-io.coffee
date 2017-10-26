@@ -6,68 +6,68 @@
 #     current application state.
 #   `newFile` Initialize the application to an empty state.
 
-module.exports = (client) ->
-  {system, Observable, UI} = client
-  {Modal} = UI
+{Modal, Observable} = UI = require "ui"
 
-  currentPath = Observable ""
-  saved = Observable true
-
-  confirmUnsaved = ->
-    return Promise.resolve() if saved()
-
-    new Promise (resolve, reject) ->
-      Modal.confirm "You will lose unsaved progress, continue?"
-      .then (result) ->
-        if result
-          resolve()
-        else
-          reject()
-
-  self =
-    currentPath: currentPath
-    saved: saved
-    new: ->
-      if saved()
-        currentPath ""
-        self.newFile()
-      else
-        confirmUnsaved()
-        .then ->
-          saved true
-          self.newFile()
-
-    open: ->
-      confirmUnsaved()
-      .then  ->
-        # TODO: File browser
-        Modal.prompt "File Path", currentPath()
-        .then (newPath) ->
-          if newPath
-            currentPath newPath
+module.exports = (system) ->
+  (self={}) ->
+    currentPath = Observable ""
+    saved = Observable true
+  
+    confirmUnsaved = ->
+      return Promise.resolve() if saved()
+  
+      new Promise (resolve, reject) ->
+        Modal.confirm "You will lose unsaved progress, continue?"
+        .then (result) ->
+          if result
+            resolve()
           else
-            throw new Error "No path given"
+            reject()
+  
+    Object.assign self,
+      currentPath: currentPath
+      saved: saved
+      new: ->
+        if saved()
+          currentPath ""
+          self.newFile()
+        else
+          confirmUnsaved()
+          .then ->
+            saved true
+            self.newFile()
+  
+      open: ->
+        confirmUnsaved()
+        .then  ->
+          # TODO: File browser
+          Modal.prompt "File Path", currentPath()
+          .then (newPath) ->
+            if newPath
+              currentPath newPath
+            else
+              throw new Error "No path given"
+          .then (path) ->
+            system.readFile path, true
+            .then (file) ->
+              self.loadFile file, path
+  
+      save: ->
+        if currentPath()
+          self.saveData()
+          .then (blob) ->
+            system.writeFile currentPath(), blob, true
+          .then ->
+            saved true
+            currentPath()
+        else
+          self.saveAs()
+  
+      saveAs: ->
+        Modal.prompt "File Path", currentPath()
         .then (path) ->
-          system.readFile path, true
-          .then (file) ->
-            self.loadFile file, path
-
-    save: ->
-      if currentPath()
-        self.saveData()
-        .then (blob) ->
-          system.writeFile currentPath(), blob, true
-        .then ->
-          saved true
-          currentPath()
-      else
-        self.saveAs()
-
-    saveAs: ->
-      Modal.prompt "File Path", currentPath()
-      .then (path) ->
-        if path
-          currentPath path
-          self.save()
-
-  return self
+          if path
+            currentPath path
+            self.save()
+  
+    return self

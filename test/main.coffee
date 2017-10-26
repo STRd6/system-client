@@ -20,7 +20,7 @@ describe "System Client", ->
 
     assert util.FileIO
 
-    handlers = util.FileIO(client)
+    handlers = util.FileIO()
 
     assert.equal handlers.currentPath(), ""
 

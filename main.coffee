@@ -4,12 +4,10 @@
 
 {version} = require "./pixie"
 
-SystemClient = ->
-  # NOTE: These required packages get populated from the parent package when building
-  # the runnable app. See util.coffee
-  Postmaster = require "postmaster"
-  UI = require "ui"
+Postmaster = require "postmaster"
+UI = require "ui"
 
+SystemClient = ->
   style = document.createElement "style"
   style.innerHTML = UI.Style.all
   document.head.appendChild style
@@ -32,7 +30,7 @@ SystemClient = ->
         .then (result) ->
           console.log result
           appData = result?.ZineOS
-  
+
           return appData
       else # Quick fail when there is no parent window to connect to
         Promise.reject "No parent window"
@@ -55,12 +53,16 @@ SystemClient = ->
   application: applicationProxy
   postmaster: postmaster
   util:
-    FileIO: require "./lib/file-io"
+    FileIO: require("./lib/file-io")(systemProxy)
   Observable: UI.Observable
   UI: UI
   version: version
 
 SystemClient.applyExtensions = ->
   require "./lib/extensions"
+
+Object.assign SystemClient,
+  Observable: UI.Observable
+  UI: UI
 
 module.exports = SystemClient
