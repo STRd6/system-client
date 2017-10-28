@@ -12,10 +12,10 @@ module.exports = (system) ->
   (self={}) ->
     currentPath = Observable ""
     saved = Observable true
-  
+
     confirmUnsaved = ->
       return Promise.resolve() if saved()
-  
+
       new Promise (resolve, reject) ->
         Modal.confirm "You will lose unsaved progress, continue?"
         .then (result) ->
@@ -23,7 +23,7 @@ module.exports = (system) ->
             resolve()
           else
             reject()
-  
+
     Object.assign self,
       currentPath: currentPath
       saved: saved
@@ -36,7 +36,7 @@ module.exports = (system) ->
           .then ->
             saved true
             self.newFile()
-  
+
       open: ->
         confirmUnsaved()
         .then  ->
@@ -51,7 +51,7 @@ module.exports = (system) ->
             system.readFile path, true
             .then (file) ->
               self.loadFile file, path
-  
+
       save: ->
         if currentPath()
           self.saveData()
@@ -62,12 +62,12 @@ module.exports = (system) ->
             currentPath()
         else
           self.saveAs()
-  
+
       saveAs: ->
         Modal.prompt "File Path", currentPath()
         .then (path) ->
           if path
             currentPath path
             self.save()
-  
+
     return self

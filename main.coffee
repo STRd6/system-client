@@ -57,6 +57,7 @@ SystemClient = ->
   postmaster: postmaster
   util:
     FileIO: require("./lib/file-io")(systemProxy)
+  Drop: require "./lib/drop"
   Observable: UI.Observable
   UI: UI
   version: version
