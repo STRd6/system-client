@@ -5,17 +5,31 @@
 {version} = require "./pixie"
 
 Postmaster = require "postmaster"
-UI = require "ui"
+{Observable} = UI = require "ui"
 
-SystemClient = ->
+SystemClient = (appDelegate) ->
   style = document.createElement "style"
   style.innerHTML = UI.Style.all
   document.head.appendChild style
 
+  externalObservables = {}
+
   postmaster = Postmaster()
+  # For receiving messages from the system
+  postmaster.delegate =
+    application: (method, args...) ->
+      appDelegate(method, args...)
+    updateSignal: (name, newValue) ->
+      externalObservables[name](newValue)
+
   remoteExists = postmaster.remoteTarget()
 
-  applicationProxy = new Proxy {}
+  # For sending messages to the system
+  applicationProxy = new Proxy
+    observeSignal: (name) ->
+      externalObservables[name] = Observable()
+
+      postmaster.invokeRemote "application", "observeSignal", name
   ,
     get: (target, property, receiver) ->
       target[property] or

@@ -1,4 +1,4 @@
-version: "0.1.5"
+version: "0.1.6-pre.0"
 publish:
   s3:
     basePath: "public/danielx.net"
