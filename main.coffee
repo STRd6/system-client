@@ -26,10 +26,15 @@ SystemClient = (appDelegate) ->
 
   # For sending messages to the system
   applicationProxy = new Proxy
-    observeSignal: (name) ->
-      externalObservables[name] = Observable()
+    observeSignal: (name, handler) ->
+      observable = Observable()
+      externalObservables[name] = observable
 
+      observable.observe handler
+
+      # Invoke the handler with the initial value
       postmaster.invokeRemote "application", "observeSignal", name
+      .then handler
   ,
     get: (target, property, receiver) ->
       target[property] or
