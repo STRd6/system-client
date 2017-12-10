@@ -2,7 +2,13 @@
   "source": {
     "README.md": {
       "path": "README.md",
-      "content": "# system-client\nClient lib to run apps on ZineOS and proxy messages to the OS through Postmaster\n",
+      "content": "System Client\n=============\n\nClient lib to run apps on ZineOS and proxy messages to the OS through Postmaster.\n\nApps that want to integrate with ZineOS can use System Client to connect to\nZineOS through the system interface.\n\nSystem Client includes the UI library so apps can use that as well.\n\nUsage\n-----\n\nSetup:\n\n```coffee\nSystemClient = require \"system-client\"\n\n{application, system, UI} = SystemClient()\n\nsystem.ready()\n.then -> # Connected to ZineOS\n.catch -> # Not connected to ZineOS\n```\n\nMaking ZineOS system calls:\n\n```coffee\nsystem.writeFile(path, blob)\n```\n\nThe system calls are sent to the parent frame through postmessage. All arguments\nneed to be able to survive the structured clone algorithm. A promise is returned\nthat will be fulfilled with the result of the remote ivnocation or rejected with\nan error.\n",
+      "mode": "100644",
+      "type": "blob"
+    },
+    "lib/drop.coffee": {
+      "path": "lib/drop.coffee",
+      "content": "module.exports = (element, handler) ->\n  cancel = (e) ->\n    e.preventDefault()\n    return false\n\n  element.addEventListener \"dragover\", cancel\n  element.addEventListener \"dragenter\", cancel\n  element.addEventListener \"drop\", (e) ->\n    handler(e)\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -35,14 +41,14 @@
       "content": "mocha.globals(['OBSERVABLE_ROOT_HACK'])\n\nSystemClient = require \"../main\"\n\ndescribe \"System Client\", ->\n  it \"should extend native Blob APIs when applying extensions\", ->\n    assert !Blob::readAsText\n\n    SystemClient.applyExtensions()\n    assert Blob::readAsText\n\n  it \"should return system and application proxies\", ->\n    {system, application} = SystemClient()\n\n    assert system\n    assert application\n\n  it \"should provide FileIO as a util\", ->\n    {util} = client = SystemClient()\n\n    assert util.FileIO\n\n    handlers = util.FileIO()\n\n    assert.equal handlers.currentPath(), \"\"\n\n  it \"should provide UI and Observable\", ->\n    {UI, Observable} = SystemClient\n\n    assert UI\n    assert.equal typeof Observable, \"function\"\n\n  it \"should connect when ready is called\", (done) ->\n    {system, application} = SystemClient()\n\n    system.ready()\n    .catch (e) ->\n      console.warn e\n      done()\n\n    return\n",
       "mode": "100644",
       "type": "blob"
-    },
-    "lib/drop.coffee": {
-      "path": "lib/drop.coffee",
-      "content": "module.exports = (element, handler) ->\n  cancel = (e) ->\n    e.preventDefault()\n    return false\n\n  element.addEventListener \"dragover\", cancel\n  element.addEventListener \"dragenter\", cancel\n  element.addEventListener \"drop\", (e) ->\n    handler(e)\n",
-      "mode": "100644"
     }
   },
   "distribution": {
+    "lib/drop": {
+      "path": "lib/drop",
+      "content": "(function() {\n  module.exports = function(element, handler) {\n    var cancel;\n    cancel = function(e) {\n      e.preventDefault();\n      return false;\n    };\n    element.addEventListener(\"dragover\", cancel);\n    element.addEventListener(\"dragenter\", cancel);\n    return element.addEventListener(\"drop\", function(e) {\n      return handler(e);\n    });\n  };\n\n}).call(this);\n",
+      "type": "blob"
+    },
     "lib/extensions": {
       "path": "lib/extensions",
       "content": "(function() {\n  Blob.prototype.readAsText = function() {\n    var file;\n    file = this;\n    return new Promise(function(resolve, reject) {\n      var reader;\n      reader = new FileReader;\n      reader.onload = function() {\n        return resolve(reader.result);\n      };\n      reader.onerror = reject;\n      return reader.readAsText(file);\n    });\n  };\n\n  Blob.prototype.getURL = function() {\n    return Promise.resolve(URL.createObjectURL(this));\n  };\n\n  Blob.prototype.readAsJSON = function() {\n    return this.readAsText().then(JSON.parse);\n  };\n\n  Blob.prototype.readAsDataURL = function() {\n    var file;\n    file = this;\n    return new Promise(function(resolve, reject) {\n      var reader;\n      reader = new FileReader;\n      reader.onload = function() {\n        return resolve(reader.result);\n      };\n      reader.onerror = reject;\n      return reader.readAsDataURL(file);\n    });\n  };\n\n  Image.fromBlob = function(blob) {\n    return blob.getURL().then(function(url) {\n      return new Promise(function(resolve, reject) {\n        var img;\n        img = new Image;\n        img.onload = function() {\n          return resolve(img);\n        };\n        img.onerror = reject;\n        return img.src = url;\n      });\n    });\n  };\n\n}).call(this);\n",
@@ -66,11 +72,6 @@
     "test/main": {
       "path": "test/main",
       "content": "(function() {\n  var SystemClient;\n\n  mocha.globals(['OBSERVABLE_ROOT_HACK']);\n\n  SystemClient = require(\"../main\");\n\n  describe(\"System Client\", function() {\n    it(\"should extend native Blob APIs when applying extensions\", function() {\n      assert(!Blob.prototype.readAsText);\n      SystemClient.applyExtensions();\n      return assert(Blob.prototype.readAsText);\n    });\n    it(\"should return system and application proxies\", function() {\n      var application, system, _ref;\n      _ref = SystemClient(), system = _ref.system, application = _ref.application;\n      assert(system);\n      return assert(application);\n    });\n    it(\"should provide FileIO as a util\", function() {\n      var client, handlers, util;\n      util = (client = SystemClient()).util;\n      assert(util.FileIO);\n      handlers = util.FileIO();\n      return assert.equal(handlers.currentPath(), \"\");\n    });\n    it(\"should provide UI and Observable\", function() {\n      var Observable, UI;\n      UI = SystemClient.UI, Observable = SystemClient.Observable;\n      assert(UI);\n      return assert.equal(typeof Observable, \"function\");\n    });\n    return it(\"should connect when ready is called\", function(done) {\n      var application, system, _ref;\n      _ref = SystemClient(), system = _ref.system, application = _ref.application;\n      system.ready()[\"catch\"](function(e) {\n        console.warn(e);\n        return done();\n      });\n    });\n  });\n\n}).call(this);\n",
-      "type": "blob"
-    },
-    "lib/drop": {
-      "path": "lib/drop",
-      "content": "(function() {\n  module.exports = function(element, handler) {\n    var cancel;\n    cancel = function(e) {\n      e.preventDefault();\n      return false;\n    };\n    element.addEventListener(\"dragover\", cancel);\n    element.addEventListener(\"dragenter\", cancel);\n    return element.addEventListener(\"drop\", function(e) {\n      return handler(e);\n    });\n  };\n\n}).call(this);\n",
       "type": "blob"
     }
   },
