@@ -7,10 +7,11 @@
 Postmaster = require "postmaster"
 {Observable} = UI = require "ui"
 
-SystemClient = (appDelegate) ->
-  style = document.createElement "style"
-  style.innerHTML = UI.Style.all
-  document.head.appendChild style
+SystemClient = (appDelegate, opts={}) ->
+  if opts.applyStyle
+    style = document.createElement "style"
+    style.innerHTML = UI.Style.all
+    document.head.appendChild style
 
   externalObservables = {}
 
