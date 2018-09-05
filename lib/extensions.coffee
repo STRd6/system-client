@@ -1,5 +1,5 @@
 # Add some utility readers to the Blob API
-Blob::readAsText = ->
+Blob::readAsText = (encoding) ->
   file = this
 
   new Promise (resolve, reject) ->
@@ -7,7 +7,7 @@ Blob::readAsText = ->
     reader.onload = ->
       resolve reader.result
     reader.onerror = reject
-    reader.readAsText(file)
+    reader.readAsText(file, encoding)
 
 Blob::getURL = ->
   Promise.resolve URL.createObjectURL(this)
