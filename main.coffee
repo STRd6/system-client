@@ -42,10 +42,13 @@ SystemClient = (opts={}) ->
       ->
         postmaster.invokeRemote "application", property, arguments...
 
+  readyPromise = null
   systemTarget =
     ready: ->
+      return readyPromise if readyPromise
+
       if remoteExists
-        postmaster.invokeRemote "ready",
+        readyPromise = postmaster.invokeRemote "ready",
           ZineOSClient: version
         .then (result) ->
           console.log result
@@ -57,7 +60,8 @@ SystemClient = (opts={}) ->
           return appData
       else # Quick fail when there is no parent window to connect to
         polyfillForStandalone()
-        Promise.reject "No parent window"
+
+        readyPromise = Promise.reject "No parent window"
 
   # Unattached
   polyfillForStandalone = ->
