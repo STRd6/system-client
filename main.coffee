@@ -7,7 +7,7 @@
 Postmaster = require "postmaster"
 {Observable} = UI = require "ui"
 
-SystemClient = (appDelegate, opts={}) ->
+SystemClient = (opts={}) ->
   if opts.applyStyle
     style = document.createElement "style"
     style.innerHTML = UI.Style.all
@@ -19,7 +19,7 @@ SystemClient = (appDelegate, opts={}) ->
   # For receiving messages from the system
   postmaster.delegate =
     application: (method, args...) ->
-      appDelegate(method, args...)
+      application.delegate?(method, args...)
     updateSignal: (name, newValue) ->
       externalObservables[name](newValue)
 
@@ -42,7 +42,7 @@ SystemClient = (appDelegate, opts={}) ->
       ->
         postmaster.invokeRemote "application", property, arguments...
 
-  systemProxy = new Proxy
+  systemTarget =
     ready: ->
       if remoteExists
         postmaster.invokeRemote "ready",
@@ -50,14 +50,27 @@ SystemClient = (appDelegate, opts={}) ->
         .then (result) ->
           console.log result
           appData = result?.ZineOS
-
+  
           if appData
             initializeOnZineOS()
-
+  
           return appData
       else # Quick fail when there is no parent window to connect to
+        polyfillForStandalone()
         Promise.reject "No parent window"
-  ,
+
+  # Unattached
+  polyfillForStandalone = ->
+    Object.assign systemTarget,
+      readFile: (path) ->
+        fetch(path)
+        .then (response) ->
+          if 200 <= response.status < 300
+            response.blob()
+          else
+            throw new Error(response.statusText)
+
+  systemProxy = new Proxy systemTarget,
     get: (target, property, receiver) ->
       target[property] or
       ->
