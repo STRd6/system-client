@@ -15,18 +15,30 @@ SystemClient = (opts={}) ->
 
   externalObservables = {}
 
+  # Queue up messages until a delegate is assigned
+  heldApplicationMessages = []
+
   postmaster = Postmaster()
   # For receiving messages from the system
   postmaster.delegate =
     application: (method, args...) ->
-      applicationProxy.delegate[method](args...)
+      if applicationTarget.delegate
+        applicationTarget.delegate[method](args...)
+      else
+        # This promise should keep the channel unresolved until the future
+        new Promise (resolve, reject) ->
+          heldApplicationMessages.push (delegate) ->
+            try
+              resolve delegate[method](args...)
+            catch e
+              reject e
+
     updateSignal: (name, newValue) ->
       externalObservables[name](newValue)
 
   remoteExists = postmaster.remoteTarget()
 
-  # For sending messages to the system
-  applicationProxy = new Proxy
+  applicationTarget =
     observeSignal: (name, handler) ->
       observable = Observable()
       externalObservables[name] = observable
@@ -36,11 +48,23 @@ SystemClient = (opts={}) ->
       # Invoke the handler with the initial value
       postmaster.invokeRemote "application", "observeSignal", name
       .then handler
-  ,
+
+  # For sending messages to the system
+  applicationProxy = new Proxy applicationTarget,
     get: (target, property, receiver) ->
       target[property] or
       ->
         postmaster.invokeRemote "application", property, arguments...
+    set: (target, property, value, receiver) ->
+      if property is "delegate"
+        heldApplicationMessages.forEach (fn)->
+          fn(value)
+
+        heldApplicationMessages = []
+
+      target[property] = value
+
+      return target[property]
 
   readyPromise = null
   systemTarget =
