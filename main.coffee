@@ -19,7 +19,7 @@ SystemClient = (opts={}) ->
   # For receiving messages from the system
   postmaster.delegate =
     application: (method, args...) ->
-      applicationProxy.delegate?(method, args...)
+      applicationProxy.delegate[method](args...)
     updateSignal: (name, newValue) ->
       externalObservables[name](newValue)
 
