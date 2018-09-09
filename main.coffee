@@ -36,6 +36,10 @@ SystemClient = (opts={}) ->
     updateSignal: (name, newValue) ->
       externalObservables[name](newValue)
 
+    fn: (handlerId, args) ->
+      # TODO: `this` is null but should be `system` here for bound events.
+      eventListeners[handlerId].apply(null, args)
+
   remoteExists = postmaster.remoteTarget()
 
   applicationTarget =
@@ -66,6 +70,8 @@ SystemClient = (opts={}) ->
 
       return target[property]
 
+  lastEventListenerId = 0
+  eventListeners = {}
   readyPromise = null
   systemTarget =
     ready: ->
@@ -77,15 +83,30 @@ SystemClient = (opts={}) ->
         .then (result) ->
           console.log result
           appData = result?.ZineOS
-  
+
           if appData
             initializeOnZineOS()
-  
+
           return appData
       else # Quick fail when there is no parent window to connect to
         polyfillForStandalone()
 
         readyPromise = Promise.reject "No parent window"
+
+    # Bind listeners to system events, sending an id in place of a local function
+    # reference
+    on: (eventName, handler) ->
+      lastEventListenerId += 1
+
+      eventListeners[lastEventListenerId] = handler
+      postmaster.invokeRemote "system", "on", eventName, lastEventListenerId
+
+    off: (eventName, handler) ->
+      [handlerId] = Object.keys(eventListeners).filter (id) ->
+        eventListeners[id] is handler
+
+      delete eventListeners[handlerId]
+      postmaster.invokeRemote "system", "off", eventName, handlerId
 
   # Unattached
   polyfillForStandalone = ->
