@@ -85,7 +85,7 @@ SystemClient = (opts={}) ->
           appData = result?.ZineOS
 
           if appData
-            initializeOnZineOS()
+            initializeOnZineOS(appData)
 
           return appData
       else # Quick fail when there is no parent window to connect to
