@@ -129,7 +129,9 @@ SystemClient = (opts={}) ->
   # create the receiver on the opposite end of the membrane and pass messages
   # back and forth like magic
 
-  initializeOnZineOS = ->
+  initializeOnZineOS = ({id}) ->
+    applicationTarget.id = id
+
     document.addEventListener "mousedown", ->
       applicationProxy.raiseToTop()
       .catch console.warn
