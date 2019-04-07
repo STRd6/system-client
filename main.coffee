@@ -143,6 +143,7 @@ SystemClient = (opts={}) ->
     FileIO: require("./lib/file-io")(systemProxy)
   Drop: require "./lib/drop"
   Observable: UI.Observable
+  Postmaster: Postmaster
   UI: UI
   version: version
 
