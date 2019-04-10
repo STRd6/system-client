@@ -15,12 +15,16 @@ describe "System Client", ->
     assert system
     assert application
 
+    assert system.client.Bindable
+    assert system.client. Observable
+    assert system.client.UI
+
   it "should provide FileIO as a util", ->
-    {util} = client = SystemClient()
+    {system} = SystemClient()
 
-    assert util.FileIO
+    assert system.client.util.FileIO
 
-    handlers = util.FileIO()
+    handlers = system.client.util.FileIO()
 
     assert.equal handlers.currentPath(), ""
 
@@ -32,7 +36,9 @@ describe "System Client", ->
 
   it "should queue up messages until a delegate is assigned", ->
     new Promise (resolve, reject) ->
-      {postmaster, application} = SystemClient()
+      {system, application} = SystemClient()
+
+      {postmaster} = system.client
 
       postmaster.delegate.application "test1", "yo"
       .then (c) ->

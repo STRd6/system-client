@@ -5,7 +5,7 @@
 {version} = require "./pixie"
 
 Postmaster = require "postmaster"
-{Observable} = UI = require "ui"
+{Bindable, Observable} = UI = require "ui"
 
 SystemClient = (opts={}) ->
   if opts.applyStyle
@@ -108,7 +108,8 @@ SystemClient = (opts={}) ->
       delete eventListeners[handlerId]
       postmaster.invokeRemote "system", "off", eventName, handlerId
 
-  # Unattached
+  # Unattached, standalone page. Use a systemTarget for that environment
+  # Currently mapping system.readFile to fetch
   polyfillForStandalone = ->
     Object.assign systemTarget,
       readFile: (path) ->
@@ -136,22 +137,41 @@ SystemClient = (opts={}) ->
       applicationProxy.raiseToTop()
       .catch console.warn
 
-  system: systemProxy
+  client =
+    postmaster: postmaster
+    util:
+      FileIO: require("./lib/file-io")(systemProxy)
+    Bindable: Bindable
+    Drop: require "./lib/drop"
+    Observable: UI.Observable
+    Postmaster: Postmaster
+    UI: UI
+    version: version
+
+  systemTarget.client = client
+
+  # Only return {system, application}
+  # Client utilities can be found in system.client
   application: applicationProxy
-  postmaster: postmaster
-  util:
-    FileIO: require("./lib/file-io")(systemProxy)
-  Drop: require "./lib/drop"
-  Observable: UI.Observable
-  Postmaster: Postmaster
-  UI: UI
-  version: version
+  system: systemProxy
 
 SystemClient.applyExtensions = ->
   require "./lib/extensions"
 
 Object.assign SystemClient,
+  Bindable: UI.Bindable
   Observable: UI.Observable
   UI: UI
+  ###
+  Launch the system client, attach `system` and `application` globals, send
+  ready message, invoke callback.
+  
+  # Grab libraries through `system.client`.
+  ###
+  launch: (fn) ->
+    Object.assign global, SystemClient()
+
+    system.ready()
+    .finally(fn)
 
 module.exports = SystemClient
