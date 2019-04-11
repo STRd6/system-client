@@ -166,7 +166,7 @@ Object.assign SystemClient,
   ###
   Launch the system client, attach `system` and `application` globals, send
   ready message, invoke callback.
-  
+
   # Grab libraries through `system.client`.
   ###
   launch: (fn) ->
