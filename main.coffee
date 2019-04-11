@@ -80,6 +80,7 @@ SystemClient = (opts={}) ->
       if remoteExists
         readyPromise = postmaster.invokeRemote "ready",
           ZineOSClient: version
+          token: postmaster.token
         .then (result) ->
           console.log result
           appData = result?.ZineOS
