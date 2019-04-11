@@ -217,7 +217,7 @@
     },
     "pixie.cson": {
       "path": "pixie.cson",
-      "content": "version: \"0.3.0-pre.1\"\npublish:\n  s3:\n    basePath: \"public/danielx.net\"\ndependencies:\n  postmaster: \"distri/postmaster:master\"\n  ui: \"STRd6/ui:master\"\n",
+      "content": "version: \"0.3.0-pre.2\"\npublish:\n  s3:\n    basePath: \"public/danielx.net\"\ndependencies:\n  postmaster: \"distri/postmaster:master\"\n  ui: \"STRd6/ui:master\"\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -251,7 +251,7 @@
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.3.0-pre.1\",\"publish\":{\"s3\":{\"basePath\":\"public/danielx.net\"}},\"dependencies\":{\"postmaster\":\"distri/postmaster:master\",\"ui\":\"STRd6/ui:master\"}};",
+      "content": "module.exports = {\"version\":\"0.3.0-pre.2\",\"publish\":{\"s3\":{\"basePath\":\"public/danielx.net\"}},\"dependencies\":{\"postmaster\":\"distri/postmaster:master\",\"ui\":\"STRd6/ui:master\"}};",
       "type": "blob"
     },
     "test/main": {
@@ -264,7 +264,7 @@
     "url": "https://danielx.net/editor/"
   },
   "config": {
-    "version": "0.3.0-pre.1",
+    "version": "0.3.0-pre.2",
     "publish": {
       "s3": {
         "basePath": "public/danielx.net"
@@ -275,7 +275,7 @@
       "ui": "STRd6/ui:master"
     }
   },
-  "version": "0.3.0-pre.1",
+  "version": "0.3.0-pre.2",
   "entryPoint": "main",
   "repository": {
     "branch": "master",
